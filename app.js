@@ -6,7 +6,8 @@ const { errors } = require('celebrate');
 const cors = require('cors');
 const helmet = require('helmet');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { CORS, limiter } = require('./utils/constants');
+const CORS = require('./utils/cors');
+const limiter = require('./utils/limiter');
 const { serverError } = require('./utils/errors/ServerError');
 
 const { MONGO_URI } = process.env;
