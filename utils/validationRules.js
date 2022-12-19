@@ -32,12 +32,6 @@ const updateProfileRule = celebrate({
   }),
 });
 
-const getMovieRule = celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().length(24).hex(),
-  }),
-});
-
 const deleteMovieRule = celebrate({
   params: Joi.object().keys({
     movieId: Joi.string().length(24).hex(),
@@ -64,7 +58,6 @@ module.exports = {
   updateProfileRule,
   getUserRule,
   postMovieRule,
-  getMovieRule,
   deleteMovieRule,
   signupRule,
   signinRule,
