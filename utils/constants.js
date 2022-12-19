@@ -5,6 +5,8 @@ const REGEX = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]
 const CORS = {
   origin: [
     'http://localhost:3001',
+    'http://localhost:3000',
+    'https://moviexplorer.nomoredomains.club',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   preflightContinue: false,
