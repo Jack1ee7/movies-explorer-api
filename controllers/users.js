@@ -97,5 +97,5 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.signout = (req, res) => {
-  res.cookie('jwt', '').send({ message: messages.signoutSuccessful });
+  res.clearCookie('jwt').send({ message: messages.signoutSuccessful });
 };
