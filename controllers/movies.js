@@ -4,6 +4,8 @@ const ForbiddenAccessError = require('../utils/errors/ForbiddenAccessError');
 const NotFoundError = require('../utils/errors/NotFoundError');
 const ValidationError = require('../utils/errors/ValidationError');
 
+const { messages } = require('../utils/constants');
+
 module.exports.getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
     .then((movies) => res.send(movies))
@@ -41,7 +43,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new ValidationError('Переданы некорректные данные при создании фильма'));
+        next(new ValidationError(messages.validation));
       } else {
         next(err);
       }
@@ -52,17 +54,17 @@ module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.params;
   const userId = req.user._id;
   Movie.findById(movieId)
-    .orFail(new NotFoundError('Фильм не найдена'))
+    .orFail(new NotFoundError(messages.notFound))
     .then((movie) => {
       if (movie.owner.toString() !== userId) {
-        throw new ForbiddenAccessError('Нельзя удалить чужой фильм');
+        throw new ForbiddenAccessError(messages.forbidden);
       }
       res.send({ movie });
       movie.remove();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        next(new ValidationError(messages.validation));
       } else {
         next(err);
       }

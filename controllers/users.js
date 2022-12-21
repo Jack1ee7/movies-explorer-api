@@ -1,22 +1,23 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require('../models/user');
 const NotFoundError = require('../utils/errors/NotFoundError');
 const ValidationError = require('../utils/errors/ValidationError');
 const AlreadyRegistredError = require('../utils/errors/AlreadyRegistredError');
+const { messages } = require('../utils/constants');
+
+const { NODE_ENV = 'development', JWT_SECRET = 'dev-secret' } = process.env;
 
 const findUserById = (res, next, id) => {
   User.findById(id)
-    .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
+    .orFail(new NotFoundError(messages.notFound))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        next(new ValidationError(messages.validation));
       } else {
         next(err);
       }
@@ -30,17 +31,17 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.updateProfile = (req, res, next) => {
   const { name, email } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
+    .orFail(new NotFoundError(messages.notFound))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new ValidationError('Переданы некорректные данные при обновлении профиля'));
+        return next(new ValidationError(messages.validation));
       }
       if (err.codeName === 'DuplicateKey') {
-        return next(new AlreadyRegistredError('Пользователь с таким email уже зарегистрирован'));
+        return next(new AlreadyRegistredError(messages.alreadyRegistred));
       }
       if (err instanceof mongoose.Error.ValidationError) {
-        return next(new ValidationError('Переданы некорректные данные при обновлении профиля'));
+        return next(new ValidationError(messages.validation));
       }
       return next(err);
     });
@@ -65,9 +66,9 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new ValidationError('Переданы некорректные данные при создании пользователя'));
+        next(new ValidationError(messages.validation));
       } else if (err.code === 11000) {
-        next(new AlreadyRegistredError('Пользователь уже зарегистрирован'));
+        next(new AlreadyRegistredError(messages.alreadyRegistred));
       } else {
         next(err);
       }
@@ -90,11 +91,11 @@ module.exports.login = (req, res, next) => {
         httpOnly: true,
         sameSite: true,
       });
-      res.send({ message: 'Авторизация успешна' });
+      res.send({ message: messages.authorizationSuccessful });
     })
     .catch(next);
 };
 
 module.exports.signout = (req, res) => {
-  res.cookie('jwt', '').send({ message: 'Выход успешен' });
+  res.cookie('jwt', '').send({ message: messages.signoutSuccessful });
 };
